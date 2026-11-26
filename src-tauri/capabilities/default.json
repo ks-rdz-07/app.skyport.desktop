@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Least privilege: the UI may only call Skyport's own commands and listen for its events.",
+  "windows": ["main"],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten", "core:window:allow-set-theme"]
+}

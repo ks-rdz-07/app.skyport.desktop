@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SkyPort marketing</title>
+<style>
+  @font-face { font-family: "Poppins"; font-weight: 700; src: url("../node_modules/@fontsource/poppins/files/poppins-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Poppins"; font-weight: 600; src: url("../node_modules/@fontsource/poppins/files/poppins-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Poppins"; font-weight: 500; src: url("../node_modules/@fontsource/poppins/files/poppins-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Inter"; font-weight: 100 900; src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); }
+
+  :root { --u: 1px; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: var(--w); height: var(--h); overflow: hidden; }
+  body { font-family: "Inter", sans-serif; color: #fff; background: #0a0f2c; position: relative; }
+
+  /* the splash's aurora, as the brand backdrop */
+  .aurora { position: absolute; inset: -20%; filter: blur(calc(70 * var(--u))) saturate(1.25); }
+  .aurora i { position: absolute; width: 60%; height: 60%; border-radius: 50%; mix-blend-mode: screen; }
+  .aurora i:nth-child(1) { left: 0; top: 5%; background: radial-gradient(circle, #4f46e5, transparent 65%); }
+  .aurora i:nth-child(2) { right: -5%; top: -5%; background: radial-gradient(circle, #0ea5e9, transparent 65%); }
+  .aurora i:nth-child(3) { left: 25%; bottom: -10%; background: radial-gradient(circle, #db2777, transparent 65%); opacity: .8; }
+  .aurora i:nth-child(4) { right: 5%; bottom: 0; background: radial-gradient(circle, #10b981, transparent 65%); opacity: .85; }
+  .grain { position: absolute; inset: 0; background-image: radial-gradient(rgb(255 255 255 / 9%) 1px, transparent 1px); background-size: calc(26 * var(--u)) calc(26 * var(--u)); }
+
+  .stage { position: absolute; inset: 0; display: grid; }
+  .brand { display: flex; align-items: center; gap: calc(14 * var(--u)); }
+  .brand svg { width: calc(56 * var(--u)); height: calc(56 * var(--u)); filter: drop-shadow(0 calc(8 * var(--u)) calc(24 * var(--u)) rgb(59 108 246 / 55%)); }
+  .wm { font-family: "Poppins"; font-size: calc(40 * var(--u)); letter-spacing: -0.03em; line-height: 1; display: inline-flex; align-items: flex-start; }
+  .wm b { font-weight: 500; color: #a9c5ff; } .wm strong { font-weight: 700; }
+  .wm i { width: .24em; height: .24em; border-radius: 50%; background: #7cf0c5; margin: .05em 0 0 .08em; }
+  h1 { font-family: "Poppins"; font-weight: 700; font-size: calc(64 * var(--u)); line-height: 1.06; letter-spacing: -0.03em; }
+  h1 em { font-style: normal; color: #a9c5ff; }
+  p.sub { font-size: calc(22 * var(--u)); line-height: 1.45; color: rgb(255 255 255 / 82%); max-width: 30em; }
+  .chips { display: flex; flex-wrap: wrap; gap: calc(10 * var(--u)); }
+  .chips span { display: inline-flex; align-items: center; gap: calc(8 * var(--u)); padding: calc(8 * var(--u)) calc(14 * var(--u)); border-radius: 999px; background: rgb(255 255 255 / 10%); border: 1px solid rgb(255 255 255 / 18%); font-size: calc(16 * var(--u)); font-weight: 500; white-space: nowrap; }
+  .chips span::before { content: ""; width: calc(7 * var(--u)); height: calc(7 * var(--u)); border-radius: 50%; background: #7cf0c5; }
+  .cta { display: inline-flex; align-items: center; gap: calc(10 * var(--u)); padding: calc(14 * var(--u)) calc(24 * var(--u)); border-radius: 999px; background: #fff; color: #0a0f2c; font-family: "Poppins"; font-weight: 600; font-size: calc(19 * var(--u)); white-space: nowrap; }
+  .cta svg { width: 1.1em; height: 1.1em; }
+
+  .shot { border-radius: calc(14 * var(--u)); overflow: hidden; box-shadow: 0 calc(40 * var(--u)) calc(90 * var(--u)) rgb(0 0 0 / 55%), 0 0 0 1px rgb(255 255 255 / 14%); background: #111; }
+  .shot .bar { height: calc(30 * var(--u)); background: #1b1b1f; display: flex; align-items: center; gap: calc(7 * var(--u)); padding: 0 calc(12 * var(--u)); }
+  .shot .bar i { width: calc(10 * var(--u)); height: calc(10 * var(--u)); border-radius: 50%; background: #3a3a40; }
+  .shot .bar span { margin-left: auto; margin-right: auto; font-size: calc(13 * var(--u)); color: #9a9aa3; }
+  .shot img { display: block; width: 100%; }
+
+  /* ---------- formats ---------- */
+  /* landscape: browser share 1200x630, X header 1500x500, LinkedIn 1584x396 */
+  .wide .stage { grid-template-columns: 1.02fr 1fr; align-items: center; padding: 0 0 0 calc(72 * var(--u)); gap: calc(40 * var(--u)); }
+  .wide .copy { display: grid; gap: calc(22 * var(--u)); align-content: center; }
+  .wide .shot { transform: translate(calc(30 * var(--u)), calc(70 * var(--u))) rotate(-3deg); width: calc(760 * var(--u)); }
+  .x .stage { padding-left: calc(330 * var(--u)); grid-template-columns: 1.1fr 1fr; } /* X puts the avatar bottom-left */
+  .x h1 { font-size: calc(54 * var(--u)); } .x .shot { width: calc(700 * var(--u)); transform: translate(calc(20 * var(--u)), calc(120 * var(--u))) rotate(-3deg); }
+  .li h1 { font-size: calc(46 * var(--u)); } .li p.sub { font-size: calc(19 * var(--u)); } .li .copy { gap: calc(14 * var(--u)); }
+  .li .shot { width: calc(640 * var(--u)); transform: translate(calc(30 * var(--u)), calc(130 * var(--u))) rotate(-3deg); }
+
+  /* profile picture 1024x1024: the mark alone, centred for a circular crop */
+  .avatar .stage { place-items: center; }
+  .avatar .brand svg { width: calc(560 * var(--u)); height: calc(560 * var(--u)); }
+
+  /* square post 1080x1080 */
+  .square .stage { grid-template-rows: auto auto 1fr; padding: calc(80 * var(--u)) calc(80 * var(--u)) 0; gap: calc(26 * var(--u)); }
+  .square h1 { font-size: calc(76 * var(--u)); }
+  .square .shot { width: calc(1040 * var(--u)); justify-self: start; transform: translate(calc(40 * var(--u)), calc(30 * var(--u))) rotate(-2deg); }
+
+  /* story 1080x1920 */
+  .story .stage { grid-template-rows: auto auto auto auto calc(860 * var(--u)) auto; overflow: hidden; padding: calc(110 * var(--u)) calc(80 * var(--u)) calc(120 * var(--u)); gap: calc(34 * var(--u)); }
+  .story h1 { font-size: calc(92 * var(--u)); } .story p.sub { font-size: calc(30 * var(--u)); }
+  .story .chips span { font-size: calc(24 * var(--u)); padding: calc(12 * var(--u)) calc(20 * var(--u)); }
+  .story .shots { position: relative; min-height: 0; overflow: visible; z-index: 0; }
+  .story .cta { position: relative; z-index: 2; }
+  .story .shot { width: calc(1060 * var(--u)); position: absolute; }
+  .story .shot.a { left: calc(-40 * var(--u)); top: calc(40 * var(--u)); transform: rotate(-4deg); }
+  .story .shot.b { left: calc(140 * var(--u)); top: calc(300 * var(--u)); transform: rotate(3deg); width: calc(900 * var(--u)); }
+  .story .cta { justify-self: start; font-size: calc(30 * var(--u)); padding: calc(22 * var(--u)) calc(36 * var(--u)); }
+
+  /* display ads */
+  .mrec .stage { padding: calc(20 * var(--u)); grid-template-rows: auto 1fr auto; gap: calc(10 * var(--u)); }
+  .mrec .brand svg { width: calc(30 * var(--u)); height: calc(30 * var(--u)); } .mrec .wm { font-size: calc(22 * var(--u)); }
+  .mrec h1 { font-size: calc(27 * var(--u)); align-self: center; } .mrec .cta { font-size: calc(14 * var(--u)); padding: calc(9 * var(--u)) calc(16 * var(--u)); justify-self: start; }
+  .leader .stage { grid-template-columns: auto 1fr auto; align-items: center; padding: 0 calc(18 * var(--u)); gap: calc(20 * var(--u)); }
+  .leader .brand svg { width: calc(40 * var(--u)); height: calc(40 * var(--u)); } .leader .wm { font-size: calc(26 * var(--u)); }
+  .leader h1 { font-size: calc(20 * var(--u)); font-weight: 600; white-space: nowrap; } .leader .cta { font-size: calc(14 * var(--u)); padding: calc(10 * var(--u)) calc(18 * var(--u)); }
+  .sky .stage { padding: calc(24 * var(--u)) calc(16 * var(--u)); grid-template-rows: auto auto 1fr auto; gap: calc(18 * var(--u)); justify-items: start; }
+  .sky .brand { flex-direction: column; align-items: flex-start; gap: calc(10 * var(--u)); }
+  .sky .brand svg { width: calc(48 * var(--u)); height: calc(48 * var(--u)); } .sky .wm { font-size: calc(26 * var(--u)); }
+  .sky h1 { font-size: calc(26 * var(--u)); } .sky p.sub { font-size: calc(14 * var(--u)); }
+  .sky .cta { font-size: calc(13 * var(--u)); padding: calc(9 * var(--u)) calc(14 * var(--u)); }
+</style>
+</head>
+<body>
+  <div class="aurora"><i></i><i></i><i></i><i></i></div>
+  <div class="grain"></div>
+  <div class="stage" id="stage"></div>
+
+  <template id="logo">
+    <svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B6CF6"/><stop offset="1" stop-color="#1E3FA8"/></linearGradient></defs>
+      <rect x="24" y="24" width="464" height="464" rx="112" fill="url(#g)"/><path d="M168 250a72 72 0 0 1 138-30 58 58 0 0 1 66 57 50 50 0 0 1-50 50H190a56 56 0 0 1-22-77z" fill="#fff" opacity=".95"/>
+      <rect x="140" y="340" width="232" height="56" rx="18" fill="#fff" opacity=".28"/><circle cx="336" cy="368" r="11" fill="#7CF0C5"/></svg>
+  </template>
+
+  <script>
+    const FORMATS = {
+      og: [1200, 630, "wide"], x: [1500, 500, "wide x"], li: [1584, 396, "wide li"], avatar: [1024, 1024, "avatar"],
+      square: [1080, 1080, "square"], story: [1080, 1920, "story"], mrec: [300, 250, "mrec"], leader: [728, 90, "leader"], sky: [160, 600, "sky"],
+    };
+    const f = new URLSearchParams(location.search).get("f") || "og";
+    const [w, h, cls] = FORMATS[f];
+    document.documentElement.style.setProperty("--w", w + "px");
+    document.documentElement.style.setProperty("--h", h + "px");
+    document.body.className = cls;
+    const logo = document.getElementById("logo").innerHTML;
+    const brand = (big) => `<div class="brand">${logo}<span class="wm"><b>Sky</b><strong>Port</strong><i></i></span></div>`;
+    const dl = `<span class="cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Download for Windows</span>`;
+    const shot = (img, k = "") => `<div class="shot ${k}"><div class="bar"><i></i><i></i><i></i><span>SkyPort</span></div><img src="assets/${img}" alt="" /></div>`;
+    const chips = `<div class="chips"><span>No servers in between</span><span>AES-256 encrypted on this PC</span><span>Uploads resume after a restart</span></div>`;
+    const H = `<h1>Your OneDrive, <em>right in</em> File Explorer.</h1>`;
+    const sub = `<p class="sub">Sign in once and your cloud is a drive letter in This PC. Files go straight from this PC to your cloud. Nothing in between.</p>`;
+    const S = document.getElementById("stage");
+    S.innerHTML = {
+      og: `<div class="copy">${brand()}${H}${chips}</div>${shot("app-drives-dark.png")}`,
+      x: `<div class="copy">${brand()}${H}</div>${shot("app-drives-dark.png")}`,
+      li: `<div class="copy">${brand()}${H}${sub}</div>${shot("app-files-light.png")}`,
+      avatar: brand(),
+      square: `${brand()}<div style="display:grid;gap:calc(22*var(--u))">${H}${chips}</div>${shot("app-drives-light.png")}`,
+      story: `${brand()}${H}${sub}${chips}<div class="shots">${shot("app-drives-dark.png", "a")}${shot("app-files-light.png", "b")}</div>${dl}`,
+      mrec: `${brand()}<h1>Your OneDrive as a drive letter.</h1>${dl}`,
+      leader: `${brand()}<h1>Your OneDrive, right in File Explorer.</h1>${dl.replace("Download for Windows", "Download")}`,
+      sky: `${brand()}<h1>Your OneDrive in File Explorer.</h1><p class="sub">No servers in between. Encrypted on this PC.</p>${dl.replace("Download for Windows", "Download")}`,
+    }[f];
+    // the avatar shows the mark alone
+    if (f === "avatar") S.querySelector(".wm").remove();
+  </script>
+</body>
+</html>

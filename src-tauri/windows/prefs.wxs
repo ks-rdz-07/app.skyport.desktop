@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run choices for the MSI. Set them on the command line, for example
+     msiexec /i SkyPort.msi STARTUP=0 THEME=dark
+     SkyPort reads these values once at first launch, applies them, then deletes them. -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <Property Id="STARTUP" Value="1" />
+    <Property Id="THEME" Value="system" />
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="SkyPortInstallPrefs" Guid="7C1C5D2E-4E0B-4C59-9E1B-3B1F6A8C2D41">
+        <RegistryKey Root="HKCU" Key="Software\Skyport">
+          <RegistryValue Name="InstallAutostart" Type="string" Value="[STARTUP]" KeyPath="yes" />
+          <RegistryValue Name="InstallTheme" Type="string" Value="[THEME]" />
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>

@@ -1,0 +1,8 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/target-dist
+src-tauri/gen
+.taste-skill
+*.log
+.env*
