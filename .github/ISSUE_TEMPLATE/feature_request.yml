@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement to SkyPort
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Which systems?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+  - type: dropdown
+    id: security
+    attributes:
+      label: Does this touch sign-in tokens, the encrypted database, two-step verification or the cache?
+      description: Changes in these areas need tests and a careful review.
+      options:
+        - "No"
+        - "Yes"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered

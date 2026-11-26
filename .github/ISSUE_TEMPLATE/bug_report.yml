@@ -1,0 +1,72 @@
+name: Bug report
+description: Report a problem with SkyPort
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Security problems do not belong here: see SECURITY.md. Remove tokens, account emails, file names and other personal data before posting."
+  - type: input
+    id: version
+    attributes:
+      label: SkyPort version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: dropdown
+    id: installer
+    attributes:
+      label: Installed with
+      options:
+        - Inno Setup (.exe)
+        - NSIS (-setup.exe)
+        - MSI
+        - .dmg
+        - .deb
+        - AppImage
+        - Built from source
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Sign-in / accounts
+        - Connecting a drive / drive letter
+        - Uploads / cache
+        - Files screen
+        - Activity / logs
+        - Two-step verification / lock
+        - Virus scanning
+        - Installer / uninstall
+        - Tray / startup
+        - Interface / layout
+        - Other
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+  - type: textarea
+    id: output
+    attributes:
+      label: Screenshots or log lines
+      description: Activity → Logs shows each drive's log. Remove personal data first.

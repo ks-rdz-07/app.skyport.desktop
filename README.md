@@ -15,6 +15,17 @@
   <img src="https://img.shields.io/badge/macOS-supported-2f62e6" alt="macOS" />
   <img src="https://img.shields.io/badge/Linux-supported-2f62e6" alt="Linux" />
   <img src="https://img.shields.io/badge/encryption-AES--256-2bb586" alt="AES-256 encryption" />
+  <br />
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/ks-rdz-07/app.skyport.desktop?include_prereleases&label=release&color=2f62e6" alt="Latest release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-30a46c" alt="License: Apache-2.0" /></a>
+  <a href="../../actions/workflows/security.yml"><img src="../../actions/workflows/security.yml/badge.svg" alt="Security" /></a>
+  <br />
+  <a href="../../releases"><img src="../../raw/stats/downloads.svg" alt="Downloads" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/views.svg" alt="Views" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/clones.svg" alt="Clones" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/cloners.svg" alt="Unique cloners" /></a>
+  <a href="../../stargazers"><img src="../../raw/stats/stars.svg" alt="Stars" /></a>
+  <a href="../../forks"><img src="../../raw/stats/forks.svg" alt="Forks" /></a>
 </p>
 
 <p align="center">
@@ -99,7 +110,7 @@ SkyPort finds rclone next to the app, on `PATH`, in winget's package folder on W
 
 ### 2. Install SkyPort
 
-Download an installer from the latest [build run](https://github.com/ks-rdz-07/app.skyport.desktop/actions/workflows/build.yml) (open the run, then **Artifacts**), or build it yourself (see [Development](#development)).
+Download an installer from the latest [release](https://github.com/ks-rdz-07/app.skyport.desktop/releases/latest), or build it yourself (see [Development](#development)). Each release lists its files and a `SHA256SUMS.txt`. The installers aren't code-signed yet, so Windows SmartScreen and macOS Gatekeeper warn on first open.
 
 On Windows, run SkyPort **without** "Run as administrator". Drives mounted by an elevated app are hidden from your File Explorer, so SkyPort refuses to mount when elevated and shows a banner.
 
@@ -180,5 +191,32 @@ pnpm tauri build               # installers in src-tauri\target\release\bundle\
 - **Rebuilding while SkyPort runs** fails on Windows (`Access is denied` on `skyport.exe`), because Windows locks a running program's file. Quit SkyPort from the tray first, or build into another folder: `$env:CARGO_TARGET_DIR="src-tauri\target-dist"`.
 - **Marketing images:** `marketing/template.html` renders the share image, social banners and ad sizes into `marketing/out/` with `node marketing/render.mjs`.
 - **Imports** use the `@/` alias for `src/`.
+
+## Releases
+
+Push a tag `vX.Y.Z` that matches the version in `package.json`, `src-tauri/tauri.conf.json` and `src-tauri/Cargo.toml`. The [Release workflow](.github/workflows/release.yml) builds the Windows (Inno Setup, MSI, NSIS), macOS (`.dmg`) and Linux (`.deb`, AppImage) installers and publishes a GitHub Release. The release notes come from merged pull requests, grouped by label. A tag with a suffix, such as `v0.2.0-beta.1`, becomes a pre-release.
+
+## Contributing
+
+> [!TIP]
+> **Built and defended by its contributors.** Each fix, review, test and report makes SkyPort safer for everyone who trusts it with their files. [Join them](CONTRIBUTING.md).
+
+- [Report a bug](../../issues/new?template=bug_report.yml) or [suggest a feature](../../issues/new?template=feature_request.yml).
+- Report security problems privately, as described in [SECURITY.md](SECURITY.md).
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+[Apache License 2.0](LICENSE). Third-party assets (Lucide icons, Simple Icons marks, Poppins and Inter fonts) are listed in [NOTICE](NOTICE).
+
+## Contributors
+
+Thanks to everyone who helps build SkyPort. New contributors show up here automatically after their first merged pull request.
+
+<p align="center">
+  <a href="../../graphs/contributors">
+    <img src="../../raw/contributors/contributors.svg" alt="Contributors" />
+  </a>
+</p>
 
 <p align="center"><sub>SkyPort · local only · no servers</sub></p>

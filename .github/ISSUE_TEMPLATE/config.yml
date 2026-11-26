@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/ks-rdz-07/app.skyport.desktop/security/advisories/new
+    about: Report security problems privately, never in a public issue.
+  - name: Ask a question
+    url: https://github.com/ks-rdz-07/app.skyport.desktop/discussions
+    about: Questions and ideas that aren't a bug or a concrete feature.

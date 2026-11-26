@@ -1,0 +1,21 @@
+SkyPort
+Copyright 2026 The SkyPort contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party assets included in this repository or in the built app:
+
+- Lucide icons (lucide-react), ISC License. https://lucide.dev
+- Authenticator app marks in src/components/authIcons.ts from Simple Icons, CC0 1.0.
+  https://simpleicons.org. The marks remain trademarks of their owners and are shown only to identify
+  the apps.
+- Poppins and Inter fonts (via Fontsource), SIL Open Font License 1.1.
+
+Not included, installed separately by the user:
+
+- rclone (MIT License), https://rclone.org
+- WinFsp (GPLv3 with a FLOSS exception), https://winfsp.dev; macFUSE / FUSE-T on macOS; FUSE 3 on Linux.
+- ClamAV (GPLv2), https://www.clamav.net
+
+Dependencies installed by Cargo (src-tauri/) and pnpm are distributed under their own licenses, listed in
+src-tauri/Cargo.lock and pnpm-lock.yaml.
