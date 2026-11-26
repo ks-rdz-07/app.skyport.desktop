@@ -1,131 +1,184 @@
-# SkyPort
+<p align="center">
+  <img src="docs/logo.png" width="112" alt="SkyPort logo" />
+</p>
 
-Skyport is a Windows desktop app that mounts your OneDrive (Personal or for Business) as a drive letter such as `O:`. The drive shows up under **This PC** in File Explorer. rclone does the cloud and mount work, WinFsp provides the Windows filesystem driver, and Rust (Tauri 2) manages processes, profiles and status. The UI is React + TypeScript.
+<h1 align="center">SkyPort</h1>
 
-![splash](docs/splash.mp4)
+<p align="center">
+  <strong>Your OneDrive, right in File Explorer.</strong><br />
+  No servers in between. Just sign in.
+</p>
 
-## What it does
+<p align="center">
+  <a href="https://github.com/ks-rdz-07/app.skyport.desktop/actions/workflows/build.yml"><img src="https://github.com/ks-rdz-07/app.skyport.desktop/actions/workflows/build.yml/badge.svg" alt="Build status" /></a>
+  <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f62e6" alt="Windows 10 and 11" />
+  <img src="https://img.shields.io/badge/macOS-supported-2f62e6" alt="macOS" />
+  <img src="https://img.shields.io/badge/Linux-supported-2f62e6" alt="Linux" />
+  <img src="https://img.shields.io/badge/encryption-AES--256-2bb586" alt="AES-256 encryption" />
+</p>
 
-- Sign in with Microsoft in your browser, or pick an existing rclone OneDrive connection.
-- Mount the whole OneDrive or one folder, with a drive letter you choose, read/write or read-only.
-- Connect, Disconnect, Reconnect and Open in Explorer. Drive-letter conflicts are checked before mounting. A drive shows **Connected** only once the volume answers in your own Windows session.
-- Shows the OneDrive storage quota (when the account reports one) and local cache usage separately.
-- Uses rclone's VFS write cache (`--vfs-cache-mode writes`): edits are saved locally and uploaded in the background. Pending uploads are shown, you're warned before disconnecting or quitting while uploads are pending, and the same cache folder is reused so unfinished uploads resume after a restart.
-- Detects missing rclone or WinFsp and links to the official download pages.
-- System tray menu (Open, Connect all, Disconnect all, Quit). Optional "Start with Windows" connects all drives at sign-in.
+<p align="center">
+  <img src="docs/hero.png" width="860" alt="SkyPort showing three OneDrive drives, their storage and upload status" />
+</p>
 
-## Security notes
+SkyPort is a desktop app that puts your OneDrive (Personal or for Business) on your computer as a real drive:
+- **Windows:** a drive letter such as `O:` in This PC.
+- **macOS and Linux:** a folder under `~/SkyPort`.
 
-- OAuth tokens stay in rclone's own config (`%APPDATA%\rclone\rclone.conf`). Rust reads the config only to list connection names and types and drops the tokens immediately. `rclone config create` stdout (which ends with the token) is discarded. rclone error text is redacted before it reaches the UI.
-- Every rclone call uses `std::process::Command` with an argument vector. No shell is ever involved. The UI can't pass URLs or executables: download links are two fixed URLs in Rust.
-- Each mount's remote-control port is bound to `127.0.0.1` with a random user and password.
-- Run Skyport **without** "Run as administrator". Drives mounted from an elevated process are hidden from your Explorer, so Skyport refuses to mount when elevated and shows a banner.
+Files open on demand, and changes upload in the background. There are no SkyPort servers: your files go straight between your computer and Microsoft, and everything SkyPort keeps stays on your computer, encrypted.
 
-## Windows setup guide
+Under the hood, [rclone](https://rclone.org) does the cloud and mount work. [WinFsp](https://winfsp.dev) or FUSE provides the filesystem driver. Rust ([Tauri 2](https://tauri.app)) manages processes, accounts and status, and the interface is React and TypeScript.
 
-### 1. Install the two components
+<p align="center">
+  <img src="docs/splash.gif" width="560" alt="SkyPort's opening animation" />
+</p>
 
-| Component | Official source | winget alternative |
-|---|---|---|
-| rclone (v1.60 or newer) | https://rclone.org/downloads/ | `winget install Rclone.Rclone` |
-| WinFsp | https://winfsp.dev/rel/ | `winget install WinFsp.WinFsp` (UAC prompt) |
+## Features
 
-Skyport looks for `rclone.exe` next to `Skyport.exe`, on `PATH`, and in winget's package folder. Click **Check again** on the Setup screen after installing.
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Drives in your file manager</h3>
+      Mount the whole OneDrive or one folder, read and write or read only. Use several accounts and several drives at once. Each drive shows its storage, its uploads, and exactly where it is in File Explorer.
+    </td>
+    <td width="50%"><img src="docs/screenshot-drives.png" alt="The Drives screen" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshot-files.png" alt="The Files screen" /></td>
+    <td width="50%" valign="top">
+      <h3>Files, inside the app</h3>
+      Browse folders and files with type icons, sizes and dates. Open, rename, show in File Explorer, and scan for viruses with Microsoft Defender or ClamAV, whichever this computer has.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>Uploads you can trust</h3>
+      Changes are saved locally first and uploaded in the background. After a restart or a dropped connection, unfinished uploads pick up where they left off. The Activity screen shows live transfers, the upload queue and each drive's log.
+    </td>
+    <td width="50%"><img src="docs/screenshot-activity-dark.png" alt="The Activity screen in dark mode" /></td>
+  </tr>
+</table>
 
-### 2. Install or build Skyport
-
-**Build from source** (needs Rust stable, Node 20+, pnpm, and Visual Studio C++ Build Tools with WebView2, which ships with Windows 11):
-
-```powershell
-cd skyport
-pnpm install
-pnpm tauri build            # installer: src-tauri\target\release\bundle\nsis\
-# or, for development:
-pnpm tauri dev
-```
-
-For a plain exe without an installer: `pnpm tauri build --no-bundle`, which writes `src-tauri\target\release\skyport.exe`.
-
-### 3. Add your OneDrive
-
-1. Open Skyport and click **Add drive**.
-2. **Account**: choose an existing connection, or enter a connection name and click **Sign in with Microsoft**. Finish sign-in in the browser. Personal and work or school accounts both work, and the account's own OneDrive is selected automatically.
-3. **Folder**: *Entire OneDrive*, or *One folder* (browse and pick).
-4. **Drive**: name, drive letter (letters already in use are disabled) and access (*Read & write* / *Read only*).
-5. Click **Add and connect**. When the card says **Connected**, the drive is in This PC.
-
-### 4. Cache location
-
-**Settings → Local cache.** The default is `E:\CloudDriveCache` when an E: drive exists, otherwise `%LOCALAPPDATA%\Skyport\Cache`. Disconnect all drives before moving the cache. Skyport refuses to move it while files are still waiting to upload, so nothing gets stranded.
-
-### 5. Start with Windows
-
-**Settings → Start with Windows** adds a per-user startup entry. Skyport then starts in the tray and connects every drive. Closing the window keeps drives connected; use **Quit** from the tray icon to stop.
-
-## Where things live
-
-| What | Path |
-|---|---|
-| Encrypted database (profiles, account names, settings, storage history, activity, 2FA secret) | `%LOCALAPPDATA%\app.skyport.desktop\skyport.db` |
-| Database key (256-bit, DPAPI-wrapped to your Windows account) | `%LOCALAPPDATA%\app.skyport.desktop\vault.key` |
-| Mount logs, errors only (one per drive) | `%LOCALAPPDATA%\app.skyport.desktop\logs\` |
-| VFS cache (pending uploads live here) | the cache folder above (`vfs\` and `vfsMeta\`) |
-| OneDrive sign-in tokens | `%APPDATA%\rclone\rclone.conf` (managed by rclone) |
-
-`%LOCALAPPDATA%` is per-machine, never roams, and only your account, SYSTEM and Administrators can read it. The database is a SQLite file held in memory and written to disk as AES-256-GCM ciphertext. If it can't be decrypted, it's set aside (`skyport.db.unreadable-*`), never deleted.
-
-## Accounts, drives and security
-
-- **Multiple accounts**: each sign-in gets a friendly name (Settings → Accounts: rename, remove, storage per account). An account can't be removed while a drive uses it.
-- **Multiple drives**: names and letters must be unique, and two drives can't show overlapping folders of the same account, because they would share cache files.
-- **Two-step verification** (Settings): TOTP codes from any authenticator app (Microsoft Authenticator, Google Authenticator, Authy, 1Password, Bitwarden, Proton Pass…), 8 single-use recovery codes, and lockout back-off after 5 wrong codes. The lock is enforced in Rust: every command except unlock is refused while locked. Skyport re-locks after 5 minutes in the tray, or from tray → Lock Skyport. Drives stay connected while locked.
-- **Drive details**: storage total, used, free and recycle bin, with history; account; access and uploads; cache; this PC (name, Windows user, local IP, time zone, region); recent activity.
-- **Guided tour** on first run; replay it from Settings.
+- **Private by design:** no SkyPort servers, no account and no tracking. Sign-ins, settings and history stay on your computer, encrypted with AES-256.
+- **Two-step verification:** codes from any authenticator app, 8 single-use recovery codes, and a lock screen enforced in Rust. Drives stay connected while SkyPort is locked.
+- **Private, hidden cache:** only your user account can open the cache folder.
+- **Start at sign-in** in the system tray. Drives that were connected come back by themselves, and a drive that stops unexpectedly reconnects.
+- **Light, dark or system theme**, a guided tour, and tooltips throughout.
 
 ## Platforms
 
-| | Windows 10/11 | macOS | Linux |
+| | Windows 10 / 11 | macOS | Linux |
 |---|---|---|---|
 | A drive appears as | a drive letter in This PC (`O:`) | a folder, `~/SkyPort/<name>` | a folder, `~/SkyPort/<name>` |
 | Filesystem driver | [WinFsp](https://winfsp.dev/rel/) | [macFUSE](https://macfuse.github.io/) or FUSE-T | FUSE 3 (`fuse3` package) |
 | Database key kept by | DPAPI (your Windows account) | Keychain | Secret Service, else a `0600` file |
-| Cache made private by | folder permissions + hidden | `chmod 700` | `chmod 700` |
+| Cache made private by | folder permissions, hidden | `chmod 700` | `chmod 700` |
 | Virus scanning | Microsoft Defender or ClamAV | ClamAV | ClamAV |
-| Installers | NSIS, MSI, Inno Setup | `.app`, `.dmg` | `.deb`, AppImage |
+| Installers | Inno Setup, MSI, NSIS | `.dmg` | `.deb`, AppImage |
 
-The interface uses each system's own words (Finder, This Mac, Start at login…). CI builds and tests all three on every push (`.github/workflows/build.yml`). `scripts/linux-check.sh` runs the Linux build and tests in a container: `podman run --rm -v <project>:/src:ro docker.io/library/rust:1-bookworm sh /src/scripts/linux-check.sh`.
+The interface uses each system's own words: Finder, This Mac, Start at login and so on.
+
+<p align="center">
+  <img src="docs/screenshot-macos.png" width="720" alt="SkyPort on macOS, with drives as folders under ~/SkyPort" /><br />
+  <sub>The macOS interface, shown in the development preview with sample data.</sub>
+</p>
+
+> [!NOTE]
+> The macOS and Linux builds compile and pass their tests in CI, but mounting a drive hasn't been tried on a real Mac or Linux machine yet. The `.dmg` is unsigned, so macOS will warn when you first open it.
+
+## Get started
+
+### 1. Install the two components
+
+| Component | Windows | macOS | Linux |
+|---|---|---|---|
+| rclone 1.60 or newer | [rclone.org](https://rclone.org/downloads/) or `winget install Rclone.Rclone` | `brew install rclone` | your package manager, or [rclone.org](https://rclone.org/downloads/) |
+| Filesystem driver | [WinFsp](https://winfsp.dev/rel/) or `winget install WinFsp.WinFsp` | [macFUSE](https://macfuse.github.io/) or FUSE-T | `fuse3` |
+
+SkyPort finds rclone next to the app, on `PATH`, in winget's package folder on Windows, and in Homebrew's folders on macOS. Click **Check again** on the Setup screen after installing.
+
+### 2. Install SkyPort
+
+Download an installer from the latest [build run](https://github.com/ks-rdz-07/app.skyport.desktop/actions/workflows/build.yml) (open the run, then **Artifacts**), or build it yourself (see [Development](#development)).
+
+On Windows, run SkyPort **without** "Run as administrator". Drives mounted by an elevated app are hidden from your File Explorer, so SkyPort refuses to mount when elevated and shows a banner.
+
+### 3. Add your OneDrive
+
+1. Open SkyPort and click **Add drive**.
+2. **Account:** pick an account, or give a new one a name and click **Sign in with Microsoft**. Finish signing in in your browser; SkyPort comes back to the front when you're done. Personal and work or school accounts both work.
+3. **Folder:** *Entire OneDrive*, or *One folder* (browse and pick).
+4. **Drive:**
+   - a name
+   - on Windows, a drive letter (letters already in use are crossed out)
+   - access: *Read & write* or *Read only*
+5. Click **Add and connect**. When the drive says **Connected**, it's in your file manager.
+
+### 4. Make it yours
+
+- **Settings → Appearance:** System, Light or Dark.
+- **Settings → Local cache:** the default is a private, hidden folder in SkyPort's app data. You can move it to another drive, for example `E:\CloudDriveCache`, while no drive is connected. SkyPort refuses to move it while files are still waiting to upload.
+- **Settings → Startup:** start in the tray at sign-in and reconnect every drive.
+- **Security:** two-step verification.
+
+Closing the window keeps your drives connected. Quit from the tray icon.
+
+## Security
+
+- **Sign-in tokens** stay in rclone's own config. Rust reads that config only to list account names and types, and drops the tokens immediately. The output of rclone's sign-in step, which ends with the token, is discarded, and rclone's error text is redacted before it reaches the interface.
+- **No shell, ever:** every process is started directly with an argument vector. The interface can't pass URLs or programs; download links are fixed in Rust.
+- **Each mount's control port** listens only on `127.0.0.1`, with a random user and password passed through the environment, never on the command line.
+- **The encrypted database** is a SQLite file kept in memory and written to disk as AES-256-GCM ciphertext. Its key is held by the operating system (see [Platforms](#platforms)). If it can't be decrypted, it's set aside, never deleted.
+
+### Where things live (Windows)
+
+| What | Path |
+|---|---|
+| Encrypted database: drives, account names, settings, storage history, activity, two-step secret | `%LOCALAPPDATA%\app.skyport.desktop\skyport.db` |
+| Database key (256-bit, DPAPI-wrapped to your Windows account) | `%LOCALAPPDATA%\app.skyport.desktop\vault.key` |
+| Drive logs, one per drive | `%LOCALAPPDATA%\app.skyport.desktop\logs\` |
+| Cache (pending uploads live here) | `%LOCALAPPDATA%\app.skyport.desktop\cache\` by default |
+| OneDrive sign-in tokens | `%APPDATA%\rclone\rclone.conf`, managed by rclone |
 
 ## Installers
 
 | Installer | Build | Notes |
 |---|---|---|
-| **Inno Setup** (recommended for people) | `ISCC.exe installer\skyport.iss` after `pnpm tauri build` | Per-user, no admin rights. Checkboxes: start with Windows (on), desktop shortcut, launch when done. Theme: System / Light / Dark. Uninstall cleans up and asks about the cache. |
-| **MSI** (for IT and silent installs) | `pnpm tauri build` (WiX, downloaded by Tauri) | First-run choices as properties: `msiexec /i SkyPort_0.1.0_x64_en-US.msi STARTUP=0 THEME=dark /qn`. Doesn't remove app data on uninstall. Use Inno or NSIS when that matters. |
+| **Inno Setup**, recommended for people | `ISCC.exe installer\skyport.iss` after `pnpm tauri build` | Per-user, no admin rights. Checkboxes: start with Windows (on by default), desktop shortcut, launch when done. Theme: System, Light or Dark. Uninstall cleans up and asks about the cache. |
+| **MSI**, for IT and silent installs | `pnpm tauri build` (WiX, downloaded by Tauri) | First-run choices as properties: `msiexec /i SkyPort_0.1.0_x64_en-US.msi STARTUP=0 THEME=dark /qn`. Doesn't remove app data on uninstall. Use Inno Setup or NSIS when that matters. |
 | **NSIS** | `pnpm tauri build` | Per-user. Uninstall cleans up and asks about the cache. |
+| **`.dmg`, `.deb`, AppImage** | CI, or `pnpm tauri build --bundles dmg` (or `deb,appimage`) on that system | |
 
-All three hand the choices to SkyPort through `HKCU\Software\Skyport`. SkyPort applies them once at first launch, then deletes them, so later changes in Settings win.
+The Windows installers hand their choices to SkyPort through `HKCU\Software\Skyport`. SkyPort applies them once at first launch and then deletes them, so later changes in Settings win.
 
-To build while SkyPort is running, use a separate output folder: `$env:CARGO_TARGET_DIR="src-tauri\target-dist"; pnpm tauri build`, then `ISCC.exe /DBuildDir=..\src-tauri\target-dist\release installer\skyport.iss`.
-
-## Uninstall
-
-The uninstaller removes `%LOCALAPPDATA%\app.skyport.desktop` (database, key, logs, webview data), `%APPDATA%\app.skyport.desktop`, the "Start with Windows" entry and `HKCU\Software\Skyport`. It **asks** before deleting the cache folder (default: keep), because the cache can hold edits that haven't uploaded yet. In-place updates skip all of this. Sign-ins in `rclone.conf` are left alone, because that file may be shared with other tools; remove accounts in Settings first if you want them gone.
+**Uninstalling on Windows** removes SkyPort's app data (database, key, logs), its startup entry and its registry key. It **asks** before deleting the cache folder (default: keep), because the cache can hold edits that haven't uploaded yet. In-place updates skip all of this. Sign-ins in `rclone.conf` are left alone, because other tools may share that file; remove accounts in SkyPort first if you want them gone.
 
 ## Troubleshooting
 
-- **"Drive O: is already in use"**: another disk, mapped share or a leftover rclone process holds the letter. Pick another letter in Edit, or end `rclone.exe` in Task Manager. A leftover rclone mount keeps uploading on its own; ending it is safe because pending files resume from the cache.
-- **Drive works in Skyport but not in Explorer**: Skyport is probably elevated. Restart it normally.
-- **Uploads stuck**: they retry automatically with backoff. Errors are in the drive's log file.
+- **"Drive O: is already in use":** another disk, mapped share or leftover engine holds the letter. Pick another letter in Edit.
+- **The drive works in SkyPort but not in File Explorer:** SkyPort is probably running as administrator. Restart it normally.
+- **Uploads seem stuck:** they retry on their own with back-off. Activity shows the queue, retries and each drive's log.
+- **A drive stopped:** SkyPort reconnects it automatically, up to 3 tries. After that, click **Reconnect**. Pending changes are kept.
 
 ## Development
 
+Needs Rust stable, Node 22+, pnpm, and on Windows the Visual Studio C++ Build Tools with WebView2 (built into Windows 11).
+
 ```powershell
-cd src-tauri; cargo test      # Rust unit tests (args, validation, redaction, cache scanning)
-pnpm build                    # TypeScript type-check + Vite build
+pnpm install
+pnpm tauri dev                 # run the app
+pnpm build                     # type-check, class guard, front-end build
+cd src-tauri; cargo test       # Rust tests
+pnpm tauri build               # installers in src-tauri\target\release\bundle\
 ```
 
-Imports use the `@/` alias for `src/` (set in `tsconfig.json` and `vite.config.ts`).
+- **Browser preview:** `pnpm dev` without the Tauri shell runs the interface with sample data (`src/dev/mock.ts`, dev builds only).
+  - Screens: `#/drives`, `#/files`, `#/activity`, `#/accounts`, `#/security`, `#/settings`, `#/drives/<id>`.
+  - Options: `?theme=light|dark`, `?os=macos|linux` (preview another system's wording), `?splash=1` (show the opening animation).
+- **Linux in a container:** `podman run --rm -v <project>:/src:ro -v skyport-target:/target docker.io/library/rust:1-bookworm sh /src/scripts/linux-check.sh`
+- **CI** builds and tests Windows, macOS and Linux on every push (`.github/workflows/build.yml`).
+- **Rebuilding while SkyPort runs** fails on Windows (`Access is denied` on `skyport.exe`), because Windows locks a running program's file. Quit SkyPort from the tray first, or build into another folder: `$env:CARGO_TARGET_DIR="src-tauri\target-dist"`.
+- **Marketing images:** `marketing/template.html` renders the share image, social banners and ad sizes into `marketing/out/` with `node marketing/render.mjs`.
+- **Imports** use the `@/` alias for `src/`.
 
-**Rebuilding while Skyport runs fails** with `failed to remove file …\skyport.exe: Access is denied`, because Windows locks a running program's file. Quit Skyport from the tray first: it warns about pending uploads and unmounts cleanly, and drives that were connected come back on the next launch. Don't end it in Task Manager while files are uploading. They'd survive in the cache, but the upload in progress restarts.
-
-`pnpm dev` without the Tauri shell runs a browser preview with sample data (`src/dev/mock.ts`, dev builds only). Add `?theme=light` or `?theme=dark` to the URL to check a theme, and `#/drives`, `#/accounts`, `#/security`, `#/settings`, `#/drives/<id>` or `#/drives/<id>/files` to open a screen.
+<p align="center"><sub>SkyPort · local only · no servers</sub></p>
