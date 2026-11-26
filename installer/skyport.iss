@@ -3,7 +3,9 @@
 ; HKCU\Software\Skyport; SkyPort applies them once at first launch and then deletes them.
 
 #define AppName "SkyPort"
-#define AppVersion "0.1.0"
+#ifndef AppVersion
+  #define AppVersion "0.1.0"
+#endif
 #define AppExe "SkyPort.exe"
 #ifndef BuildDir
   #define BuildDir "..\src-tauri\target\release"

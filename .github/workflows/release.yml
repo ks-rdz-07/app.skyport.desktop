@@ -1,0 +1,172 @@
+# Push a tag vX.Y.Z (matching the version in package.json, tauri.conf.json and Cargo.toml) to build the
+# Windows, macOS and Linux installers and publish them as a GitHub Release with generated notes and
+# SHA-256 checksums. A tag with a suffix (v0.2.0-beta.1) becomes a pre-release.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: v
+        name: Tag must match the app version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          CONF=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          CARGO=$(sed -n 's/^version = "\(.*\)"/\1/p' src-tauri/Cargo.toml | head -1)
+          echo "tag=$TAG package.json=$PKG tauri.conf.json=$CONF Cargo.toml=$CARGO"
+          if [ "$TAG" != "$PKG" ] || [ "$TAG" != "$CONF" ] || [ "$TAG" != "$CARGO" ]; then
+            echo "::error::Tag v$TAG does not match the version in package.json, tauri.conf.json and Cargo.toml."
+            exit 1
+          fi
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          case "$TAG" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
+
+  build:
+    name: ${{ matrix.name }}
+    needs: check
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            bundles: nsis,msi
+          - name: macOS
+            os: macos-latest
+            bundles: dmg
+          - name: Linux
+            os: ubuntu-22.04
+            bundles: deb,appimage
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Linux libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev libdbus-1-dev libxdo-dev patchelf
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Front end (type-check, class guard, build)
+        run: pnpm build
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test
+
+      - name: Build installers
+        run: pnpm tauri build --bundles ${{ matrix.bundles }}
+
+      - name: Inno Setup installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress; }
+          & $iscc "/DAppVersion=$env:VERSION" "/DBuildDir=$env:GITHUB_WORKSPACE\src-tauri\target\release" installer\skyport.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.name }}
+          path: |
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    name: Publish release
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist
+
+      - name: Collect files and checksums
+        run: |
+          mkdir out
+          find dist -type f -exec mv {} out/ \;
+          cd out
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Write the install notes
+        run: |
+          cat > notes.md <<EOF
+          ## Download
+
+          | System | File |
+          |---|---|
+          | Windows 10 / 11 (recommended) | \`SkyPort_${VERSION}_x64-inno-setup.exe\` |
+          | Windows, IT / silent install | \`SkyPort_${VERSION}_x64_en-US.msi\` |
+          | Windows, alternative | \`SkyPort_${VERSION}_x64-setup.exe\` |
+          | macOS (Apple silicon) | \`SkyPort_${VERSION}_aarch64.dmg\` |
+          | Linux (Debian, Ubuntu) | \`.deb\` |
+          | Linux (other) | \`.AppImage\` |
+
+          SkyPort also needs **rclone** and a filesystem driver (**WinFsp** on Windows, **macFUSE** or FUSE-T on
+          macOS, **FUSE 3** on Linux). The Setup screen links to the official downloads.
+
+          > The installers aren't code-signed yet: Windows SmartScreen and macOS Gatekeeper will warn on first
+          > open. Check the file against \`SHA256SUMS.txt\`.
+
+          EOF
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+
+      - name: Create the GitHub Release
+        run: |
+          FLAGS=""
+          if [ "$PRERELEASE" = true ]; then FLAGS="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "SkyPort $VERSION" --notes-file notes.md --generate-notes $FLAGS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.check.outputs.version }}
+          PRERELEASE: ${{ needs.check.outputs.prerelease }}
