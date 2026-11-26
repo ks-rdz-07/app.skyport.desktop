@@ -15,6 +15,17 @@
   <img src="https://img.shields.io/badge/macOS-supported-2f62e6" alt="macOS" />
   <img src="https://img.shields.io/badge/Linux-supported-2f62e6" alt="Linux" />
   <img src="https://img.shields.io/badge/encryption-AES--256-2bb586" alt="AES-256 encryption" />
+  <br />
+  <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/ks-rdz-07/app.skyport.desktop?include_prereleases&label=release&color=2f62e6" alt="Latest release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-30a46c" alt="License: Apache-2.0" /></a>
+  <a href="../../actions/workflows/security.yml"><img src="../../actions/workflows/security.yml/badge.svg" alt="Security" /></a>
+  <br />
+  <a href="../../releases"><img src="../../raw/stats/downloads.svg" alt="Downloads" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/views.svg" alt="Views" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/clones.svg" alt="Clones" /></a>
+  <a href="../../graphs/traffic"><img src="../../raw/stats/cloners.svg" alt="Unique cloners" /></a>
+  <a href="../../stargazers"><img src="../../raw/stats/stars.svg" alt="Stars" /></a>
+  <a href="../../forks"><img src="../../raw/stats/forks.svg" alt="Forks" /></a>
 </p>
 
 <p align="center">
