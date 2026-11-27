@@ -18,7 +18,7 @@ rusqlite = { version = "0.43.0", features = ["bundled", "serialize"] }
 aes-gcm = "0.10"
 hmac = "0.12"
 sha1 = "0.10"
-qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+qrcode = { version = "0.15", default-features = false, features = ["svg"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
