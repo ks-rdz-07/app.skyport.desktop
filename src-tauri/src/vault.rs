@@ -2,7 +2,7 @@
 //! as AES-256-GCM ciphertext. The 256-bit key is random and kept by the operating system:
 //! wrapped with DPAPI on Windows, in the Keychain on macOS, in the Secret Service on Linux.
 use aes_gcm::{
-    aead::{rand_core::RngCore, Aead, KeyInit, OsRng, Payload},
+    aead::{Aead, KeyInit, Payload},
     Aes256Gcm, Nonce,
 };
 use rusqlite::{params, Connection};
@@ -45,13 +45,13 @@ pub fn now() -> i64 {
 
 pub fn random_bytes<const N: usize>() -> [u8; N] {
     let mut b = [0u8; N];
-    OsRng.fill_bytes(&mut b);
+    getrandom::fill(&mut b).expect("OS random number generator");
     b
 }
 
 pub fn seal(key: &[u8; 32], plain: &[u8]) -> Vec<u8> {
     let nonce = random_bytes::<12>();
-    let ct = Aes256Gcm::new(key.into()).encrypt(Nonce::from_slice(&nonce), Payload { msg: plain, aad: MAGIC }).expect("encrypt");
+    let ct = Aes256Gcm::new(key.into()).encrypt(&Nonce::from(nonce), Payload { msg: plain, aad: MAGIC }).expect("encrypt");
     [MAGIC.as_slice(), &nonce, &ct].concat()
 }
 
@@ -59,7 +59,7 @@ pub fn open_sealed(key: &[u8; 32], blob: &[u8]) -> Option<Vec<u8>> {
     if blob.len() < 16 + 16 || &blob[..4] != MAGIC {
         return None;
     }
-    Aes256Gcm::new(key.into()).decrypt(Nonce::from_slice(&blob[4..16]), Payload { msg: &blob[16..], aad: MAGIC }).ok()
+    Aes256Gcm::new(key.into()).decrypt(&Nonce::try_from(&blob[4..16]).ok()?, Payload { msg: &blob[16..], aad: MAGIC }).ok()
 }
 
 const SCHEMA: &str = "
@@ -166,6 +166,15 @@ mod tests {
     }
 
     #[test]
+    fn opens_blobs_sealed_by_earlier_versions() {
+        // sealed by v0.1.0 (aes-gcm 0.10); crate upgrades must keep existing vaults readable
+        let key: [u8; 32] = core::array::from_fn(|i| i as u8);
+        let hex = "534b59319a53b996e1115067c95a804dbb3973343faed1cd6fdb68c0cebadb449b98b6e5cb061aab94c73d2aae2db345";
+        let blob: Vec<u8> = (0..hex.len()).step_by(2).map(|i| u8::from_str_radix(&hex[i..i + 2], 16).unwrap()).collect();
+        assert_eq!(open_sealed(&key, &blob).unwrap(), b"skyport vault v1");
+    }
+
+    #[test]
     fn database_persists_encrypted() {
         let dir = std::env::temp_dir().join(format!("skyport-vault-{}", u64::from_le_bytes(random_bytes::<8>())));
         {
@@ -183,3 +192,4 @@ mod tests {
         fs::remove_dir_all(&dir).unwrap();
     }
 }
+

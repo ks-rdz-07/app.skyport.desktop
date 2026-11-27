@@ -1,6 +1,6 @@
 //! Two-step verification: RFC 6238 TOTP (30 s, 6 digits, SHA-1), which every
 //! authenticator app supports, plus single-use recovery codes.
-use hmac::{Hmac, Mac};
+use hmac::{Hmac, KeyInit, Mac};
 use sha1::Sha1;
 
 pub fn code_at(secret: &[u8], unix: u64) -> u32 {
