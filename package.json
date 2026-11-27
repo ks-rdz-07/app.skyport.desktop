@@ -3,6 +3,19 @@
   "private": true,
   "version": "0.1.0",
   "license": "Apache-2.0",
+  "description": "Your OneDrive as a real drive in File Explorer, Finder or your file manager. Local only, no servers.",
+  "repository": "github:ks-rdz-07/app.skyport.desktop",
+  "keywords": [
+    "onedrive", "onedrive-client", "onedrive-mount", "onedrive-linux", "onedrive-macos", "onedrive-windows",
+    "microsoft-onedrive", "onedrive-for-business", "sharepoint", "microsoft-365", "office-365",
+    "cloud-storage", "cloud-drive", "cloud-sync", "cloud-mount", "mount", "mount-drive", "drive-letter",
+    "virtual-drive", "network-drive", "virtual-filesystem", "vfs", "filesystem", "file-sync", "sync",
+    "file-explorer", "finder", "file-manager", "on-demand-files", "offline-files", "local-cache",
+    "backup", "file-sharing", "remote-storage", "desktop-app", "desktop", "cross-platform", "windows",
+    "windows-11", "macos", "linux", "ubuntu", "tauri", "tauri-app", "rust", "react", "typescript", "vite",
+    "rclone", "rclone-gui", "rclone-mount", "winfsp", "fuse", "macfuse", "privacy", "local-first",
+    "encryption", "aes-256-gcm", "totp", "two-factor", "open-source", "self-hosted"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",

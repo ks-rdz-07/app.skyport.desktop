@@ -95,12 +95,11 @@ def main(repo, out_dir, history_path=None):
     clones, cloners = totals(history, "clones")
     views, _ = totals(history, "views")
     dl = downloads(repo, gh)
-    tracked = bool(history.get("clones"))
     files = {
         "downloads.svg": badge("downloads", short(dl), "#30a46c"),
-        "clones.svg": badge("clones", short(clones) if tracked else "n/a"),
-        "cloners.svg": badge("unique cloners", short(cloners) if tracked else "n/a"),
-        "views.svg": badge("views", short(views) if tracked else "n/a", "#3e63dd"),
+        "clones.svg": badge("clones", short(clones)),
+        "cloners.svg": badge("unique cloners", short(cloners)),
+        "views.svg": badge("views", short(views), "#3e63dd"),
         "stars.svg": badge("stars", short(meta["stargazers_count"]), "#ffc53d"),
         "forks.svg": badge("forks", short(meta["forks_count"]), "#8e4ec6"),
     }
