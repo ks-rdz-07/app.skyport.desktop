@@ -140,6 +140,34 @@ pub fn take_install_prefs() -> (Option<String>, Option<bool>) {
     (theme, autostart)
 }
 
+/// MSI uninstall: remove what the Inno and NSIS uninstallers remove. The cache is kept, since it can
+/// hold edits not yet uploaded and an MSI uninstall is often silent, so there is nobody to ask.
+pub fn uninstall_cleanup() {
+    use std::os::windows::process::CommandExt;
+    use windows_sys::Win32::System::Registry::{RegDeleteKeyValueW, RegDeleteTreeW, HKEY_CURRENT_USER};
+    // quit a running SkyPort (its job object ends the mounts) so the database isn't held open
+    let root = std::env::var_os("SystemRoot").map(std::path::PathBuf::from).unwrap_or(r"C:\Windows".into());
+    let _ = std::process::Command::new(root.join(r"System32\taskkill.exe"))
+        .args(["/F", "/T", "/IM", "skyport.exe", "/FI", &format!("PID ne {}", std::process::id())])
+        .creation_flags(0x0800_0000)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status();
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    // encrypted database, its DPAPI-wrapped key, logs, webview data
+    for var in ["LOCALAPPDATA", "APPDATA"] {
+        if let Some(base) = std::env::var_os(var) {
+            let _ = std::fs::remove_dir_all(std::path::Path::new(&base).join("app.skyport.desktop"));
+        }
+    }
+    let w = |s: &str| s.encode_utf16().chain([0]).collect::<Vec<u16>>();
+    unsafe {
+        RegDeleteKeyValueW(HKEY_CURRENT_USER, w(r"Software\Microsoft\Windows\CurrentVersion\Run").as_ptr(), w("SkyPort").as_ptr());
+        RegDeleteTreeW(HKEY_CURRENT_USER, w(r"Software\Skyport").as_ptr());
+    }
+}
+
 /// File Explorer opens a folder, file or URL. Absolute path, so a planted explorer.exe is never used.
 pub fn opener() -> std::process::Command {
     let root = std::env::var_os("SystemRoot").map(std::path::PathBuf::from).unwrap_or(r"C:\Windows".into());

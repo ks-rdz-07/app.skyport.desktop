@@ -14,5 +14,13 @@
         </RegistryKey>
       </Component>
     </DirectoryRef>
+
+    <!-- Uninstall (not upgrade): SkyPort removes its per-user data as the signed-in user, before its
+         files are removed. "Path" is the main executable's file id in Tauri's WiX template. -->
+    <CustomAction Id="SkyPortUninstallCleanup" FileKey="Path" ExeCommand="--uninstall-cleanup"
+                  Execute="deferred" Impersonate="yes" Return="ignore" />
+    <InstallExecuteSequence>
+      <Custom Action="SkyPortUninstallCleanup" Before="RemoveFiles">REMOVE~="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+    </InstallExecuteSequence>
   </Fragment>
 </Wix>
