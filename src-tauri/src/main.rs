@@ -258,6 +258,11 @@ fn mount_all(app: &AppHandle) {
 }
 
 fn main() {
+    // run by the MSI on uninstall (not upgrade), before single-instance can forward it to a running SkyPort
+    #[cfg(windows)]
+    if std::env::args().any(|a| a == "--uninstall-cleanup") {
+        return os::uninstall_cleanup();
+    }
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _, _| show_main(app)))
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec!["--autostart"])))
