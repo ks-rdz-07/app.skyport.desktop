@@ -15,10 +15,11 @@ tauri-plugin-single-instance = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rusqlite = { version = "0.43.0", features = ["bundled", "serialize"] }
-aes-gcm = "0.10"
-hmac = "0.12"
-sha1 = "0.10"
+aes-gcm = "0.11"
+hmac = "0.13"
+sha1 = "0.11"
 qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+getrandom = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
